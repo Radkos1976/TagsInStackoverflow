@@ -51,25 +51,19 @@ namespace TagsInStackoverflow.Model
                 if (response.IsSuccessStatusCode)
                 {
                     var enc = Encoding.UTF8;
-                    using (Stream responseStream = response.Content.ReadAsStreamAsync().Result)
+                    using Stream responseStream =response.Content.ReadAsStreamAsync().Result;
+                    using var decompressedStream = new GZipStream(responseStream, CompressionMode.Decompress);
+                    using var rd = new StreamReader(decompressedStream, enc);
+                    var stringContent = await rd.ReadToEndAsync();
+                    Root tmp = JsonConvert.DeserializeObject<Root>(stringContent);
+                    // Manage backoff signall and stop all signals
+                    if (tmp.Backoff > 0)
                     {
-                        using (var decompressedStream = new GZipStream(responseStream, CompressionMode.Decompress))
-                        {
-                            using (var rd = new StreamReader(decompressedStream, enc))
-                            {
-                                var stringContent = rd.ReadToEnd();
-                                Root tmp = JsonConvert.DeserializeObject<Root>(stringContent);
-                                // Manage backoff signall and stop all signals
-                                if (tmp.Backoff > 0)
-                                {
-                                    Run_backoff = true;
-                                    Backoff_interval = tmp.Backoff;
-                                }
-                                return tmp;
-                            }
-                        }
-                    }                  
-                    
+                        Run_backoff = true;
+                        Backoff_interval = tmp.Backoff;
+                    }
+                    return tmp;
+
                 }
                 else
                 {
