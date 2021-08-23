@@ -19,8 +19,8 @@ namespace TagsInStackoverflow.Model
         /// </summary>
         public long Number_Tags { get; set; }
         private int Max_pages { get; set; }
-        public bool Run_backoff { get; set; }
-        public int Backoff_interval { get; set; }
+        public static bool Run_backoff { get; set; }
+        public static int Backoff_interval { get; set; }
         /// <summary>
         /// Initialize
         /// </summary>
@@ -28,8 +28,8 @@ namespace TagsInStackoverflow.Model
         {
             Number_Tags = 1000;
             Max_pages = Convert.ToInt32(Math.Floor(Number_Tags / 100.00));
-            Run_backoff = false;
-            Backoff_interval = 0;
+            Run_backoff = Run_backoff?true:false;
+            Backoff_interval = (Backoff_interval == 0)?0: Backoff_interval;
         }
         
         // Query for get data about Tags / Autetications is not need , records are limited / parameter max controls 
