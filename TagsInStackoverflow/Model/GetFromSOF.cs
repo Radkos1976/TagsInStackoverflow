@@ -18,20 +18,19 @@ namespace TagsInStackoverflow.Model
         /// Number of tags for retieve from SOF
         /// </summary>
         public long Number_Tags { get; set; }
-        private int Max_pages { get; set; }
+        private int Max_pages { get {return Convert.ToInt32(Math.Floor(Number_Tags / 100.00)); } }
         public static bool Run_backoff { get; set; }
-        public static int Backoff_interval { get; set; }
+        public static int Backoff_interval { get; set; } 
         /// <summary>
         /// Initialize
         /// </summary>
         public GetFromSOF()
         {
-            Number_Tags = 1000;
-            Max_pages = Convert.ToInt32(Math.Floor(Number_Tags / 100.00));
+            Number_Tags = 1000;           
             Run_backoff = Run_backoff?true:false;
             Backoff_interval = (Backoff_interval == 0)?0: Backoff_interval;
         }
-        
+       
         // Query for get data about Tags / Autetications is not need , records are limited / parameter max controls 
         static readonly string DefMethod = "https://api.stackexchange.com//2.3/tags?order=desc&pagesize=100&sort=popular&site=stackoverflow";
         //For test static readonly string DefMethod = "http://localhost:3000/API/ValuesControllerSOF?order=desc&pagesize=100&sort=popular&site=stackoverflow";
