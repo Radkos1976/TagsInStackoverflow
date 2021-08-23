@@ -42,7 +42,7 @@ export class FetchData extends Component {
 
     return (
       <div>
-        <h1 id="tabelLabel" >Weather forecast</h1>
+        <h1 id="tabelLabel" >Popularity Tags in StackOverFlow</h1>
         <p>List First 10000 Tags sorted by popularity</p>
         {contents}
       </div>
