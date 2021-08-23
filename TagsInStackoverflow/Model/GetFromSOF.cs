@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -44,23 +45,31 @@ namespace TagsInStackoverflow.Model
         {
             HttpClient client = new();
             //HttpResponseMessage response = await client.GetAsync(DefMethod + "&page = " + page);
-            using (HttpResponseMessage response = client.GetAsync(DefMethod + "&page = " + page).Result)
+            using (HttpResponseMessage response = client.GetAsync(DefMethod + "&page=" + page).Result)
             {               
                
                 if (response.IsSuccessStatusCode)
                 {
-                    byte[] byteArray = await response.Content.ReadAsByteArrayAsync();
-                    Encoding utf8 = Encoding.UTF8;
-                    string result = utf8.GetString(byteArray, 0, byteArray.Length);
-                    //= await response.Content.ReadAsStringAsync();
-                    Root tmp = JsonConvert.DeserializeObject<Root>(result);
-                    // Manage backoff signall and stop all signals
-                    if (tmp.Backoff > 0)
+                    var enc = Encoding.UTF8;
+                    using (Stream responseStream = response.Content.ReadAsStreamAsync().Result)
                     {
-                        Run_backoff = true;
-                        Backoff_interval = tmp.Backoff;
-                    }
-                    return tmp;
+                        using (var decompressedStream = new GZipStream(responseStream, CompressionMode.Decompress))
+                        {
+                            using (var rd = new StreamReader(decompressedStream, enc))
+                            {
+                                var stringContent = rd.ReadToEnd();
+                                Root tmp = JsonConvert.DeserializeObject<Root>(stringContent);
+                                // Manage backoff signall and stop all signals
+                                if (tmp.Backoff > 0)
+                                {
+                                    Run_backoff = true;
+                                    Backoff_interval = tmp.Backoff;
+                                }
+                                return tmp;
+                            }
+                        }
+                    }                  
+                    
                 }
                 else
                 {
