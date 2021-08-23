@@ -25,7 +25,7 @@ namespace TagsInStackoverflow.Model
         /// </summary>
         public GetFromSOF()
         {
-            Number_Tags = 100;
+            Number_Tags = 1000;
             Max_pages = Convert.ToInt32(Math.Floor(Number_Tags / 100.00));
             Run_backoff = false;
             Backoff_interval = 0;
@@ -45,12 +45,13 @@ namespace TagsInStackoverflow.Model
             HttpClient client = new();
             //HttpResponseMessage response = await client.GetAsync(DefMethod + "&page = " + page);
             using (HttpResponseMessage response = client.GetAsync(DefMethod + "&page = " + page).Result)
-            {
-                var byteArray = await response.Content.ReadAsByteArrayAsync();                
-                string result = Encoding.UTF8.GetString(byteArray, 0, byteArray.Length);
+            {               
                
                 if (response.IsSuccessStatusCode)
-                {                    
+                {
+                    byte[] byteArray = await response.Content.ReadAsByteArrayAsync();
+                    Encoding utf8 = Encoding.UTF8;
+                    string result = utf8.GetString(byteArray, 0, byteArray.Length);
                     //= await response.Content.ReadAsStringAsync();
                     Root tmp = JsonConvert.DeserializeObject<Root>(result);
                     // Manage backoff signall and stop all signals
