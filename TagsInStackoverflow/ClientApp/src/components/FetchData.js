@@ -24,7 +24,7 @@ export class FetchData extends Component {
         </thead>
             <tbody>
                 {forecasts.map(forecast =>
-                    <tr key={forecast.count}>
+                    <tr key={forecast.name}>
                         <td>{forecast.name}</td>
                         <td>{forecast.count}</td>
                         <td>{forecast.percentage} %</td>
